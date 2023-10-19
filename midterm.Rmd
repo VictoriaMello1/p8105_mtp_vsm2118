@@ -1,5 +1,7 @@
 ---
 title: "Data Science Midterm"
+author: "Victoria Mello (vsm2118)"
+date: "October 23, 2023"
 output: github_document
 ---
 
@@ -29,6 +31,7 @@ The raw data used in this analysis consists of Change of Address (COA) data from
 
 ## Section 1 – Data import, cleaning, and quality control
 
+Read in the data:
 ```{r}
 zip_data = read_csv("zip_codes.csv")
 
@@ -47,8 +50,8 @@ coa_data = coa_data %>%
 view(coa_data)
 ```
 
-Cleaning zipcode data and creating a borough variable
 
+Cleaning zipcode data and creating a borough variable:
 ```{r}
 # Create a "borough" variable in the ZIP code data
 zip_data <- zip_data %>%
@@ -66,8 +69,8 @@ zip_data <- zip_data %>%
 view(zip_data)
 ```
 
-Merging the zipcode and coa data sets
 
+Merging the zipcode and coa data sets:
 ```{r}
 # Merge the COA and ZIP code data based on ZIP code
 merged_data <- coa_data %>%
@@ -80,19 +83,10 @@ final_data <- merged_data %>%
 view(final_data)
 ```
 
-Exploring combined final dataset:
-```{r}
-summary_description <- final_data %>%
-  summarise(
-    Total_Observations = n(),
-    Unique_ZIP_Codes = n_distinct(zipcode),
-    Unique_Neighborhoods = n_distinct(neighborhood)
-  )
+The resulting tidy dataset final_data contains a total of `r nrow(final_data)` observations. It includes data from `r n_distinct(final_data$zipcode)` unique ZIP codes and data from `r n_distinct(final_data$neighborhood)` unique neighborhoods.
 
-print(summary_description)
-```
 
-Comparing city and borough: 
+Comparing most common values of 'city' in Manhattan and Queens boroughs: 
 ```{r}
 # Filter the data for Manhattan and Queens
 manhattan_data <- final_data %>%
@@ -111,4 +105,28 @@ queens_table <- queens_data %>%
 knitr::kable(manhattan_table, caption = "Manhattan most common city value")
 knitr::kable(queens_table, caption = "Queens most common city value")
 ```
+
+#### Data Quality Issues 
+In the Manhattan table, there appears to be variations in city names such as "NEW YORK," "NYC," and "WALL STREET." These variations may hinder accurate analysis and visualization by potentially duplicating or misrepresenting data. Additionally, the presence of "BRONX" and "BROOKLYN" entries within Manhattan suggests data entry errors or misclassification, which could lead to inaccuracies in borough-specific analyses. Based on these observations it seems that the "city" variable is not currently usable as it has both borough and neighborhood information. Instead, for analysis we can use the "neighborhood" variable for more micro-neighborhood level analysis as well as the "borough" variable that was created in the data cleaning step. Both of these levels of analysis into  
+
+
+Exploring zip code count:
+```{r}
+# Count the observations for each ZIP code
+zip_code_counts <- final_data %>%
+  group_by(zipcode, neighborhood, borough, city) %>%
+  summarise(Observation_Count = n())
+
+# Filter for ZIP codes with less than 60 observations
+zip_count_60 <- zip_code_counts %>%
+  filter(Observation_Count < 60) %>%
+  arrange(desc(Observation_Count))
+
+
+view(zip_count_60)
+knitr::kable(zip_count_60)
+```
+
+As shown in the table above there are 58 zip codes with fewer than 60 observations for change of address. There are a few potential reasons and factors that are likely resulting in these specific zip codes having so few observations. For example many of the zip codes in this tabel that are located in Manhattan are within the lower and midtown neighborhoods, which are areas characterized by numerous business districts and commercial areas. Thus these zip codes may be predominantly associated with business addresses, resulting in a lower frequency of residential address changes. Another observation from this table that could explain a potential reason for these zip codes having less than 60 observations for changes in address is that many of these zip codes are within residential areas where people are more likely to own property and as a result might not be moving in and out of the neighborhood as frequently. In the table there is a high representation of zip codes from Queens and Brooklyn which are boroughs with higher rates of home ownership, pointing to this being a potential factor at play. 
+
 
