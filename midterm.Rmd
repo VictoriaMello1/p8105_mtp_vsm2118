@@ -44,7 +44,7 @@ coa_data = coa_data %>%
     net_change = `total_perm_in` - `total_perm_out`
   )
   
-  view(coa_data)
+view(coa_data)
 ```
 
 Cleaning zipcode data and creating a borough variable
@@ -56,7 +56,8 @@ zip_data <- zip_data %>%
   rename(zipcode = zip_code) %>% 
   mutate(
     borough = case_when(
-      county_name %in% c("Kings", "Queens") ~ "Brooklyn",
+      county_name %in% c("Kings") ~ "Brooklyn",
+      county_name %in% c("Queens") ~ "Queens",
       county_name == "Bronx" ~ "Bronx",
       county_name == "New York" ~ "Manhattan",
       county_name == "Richmond" ~ "Staten Island"
@@ -65,7 +66,7 @@ zip_data <- zip_data %>%
 view(zip_data)
 ```
 
-Merging the zipcode and coa datasets
+Merging the zipcode and coa data sets
 
 ```{r}
 # Merge the COA and ZIP code data based on ZIP code
@@ -74,9 +75,40 @@ merged_data <- coa_data %>%
 
 # Select only the necessary variables for later visualizations
 final_data <- merged_data %>%
-  select(zipcode, neighborhood, borough, year, month, net_change)
+  select(zipcode, neighborhood, borough, year, month, net_change, city)
 
-# View the final dataset
 view(final_data)
+```
+
+Exploring combined final dataset:
+```{r}
+summary_description <- final_data %>%
+  summarise(
+    Total_Observations = n(),
+    Unique_ZIP_Codes = n_distinct(zipcode),
+    Unique_Neighborhoods = n_distinct(neighborhood)
+  )
+
+print(summary_description)
+```
+
+Comparing city and borough: 
+```{r}
+# Filter the data for Manhattan and Queens
+manhattan_data <- final_data %>%
+  filter(borough == "Manhattan")
+
+queens_data <- final_data %>%
+  filter(borough == "Queens")
+
+# Create tables for the most common cities in Manhattan and Queens
+manhattan_table <- manhattan_data %>%
+  count(city, sort = TRUE)
+
+queens_table <- queens_data %>%
+  count(city, sort = TRUE)
+
+knitr::kable(manhattan_table, caption = "Manhattan most common city value")
+knitr::kable(queens_table, caption = "Queens most common city value")
 ```
 
