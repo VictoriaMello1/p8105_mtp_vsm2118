@@ -128,7 +128,7 @@ view(zip_count_60)
 knitr::kable(zip_count_60)
 ```
 
-As shown in the table above there are 58 zip codes with fewer than 60 observations for change of address. There are a few potential reasons and factors that are likely resulting in these specific zip codes having so few observations. For example many of the zip codes in this tabel that are located in Manhattan are within the lower and midtown neighborhoods, which are areas characterized by numerous business districts and commercial areas. Thus these zip codes may be predominantly associated with business addresses, resulting in a lower frequency of residential address changes. Another observation from this table that could explain a potential reason for these zip codes having less than 60 observations for changes in address is that many of these zip codes are within residential areas where people are more likely to own property and as a result might not be moving in and out of the neighborhood as frequently. In the table there is a high representation of zip codes from Queens and Brooklyn which are boroughs with higher rates of home ownership, pointing to this being a potential factor at play. 
+As shown in the table above there are `r nrow(zip_count_60)` zip codes with fewer than 60 observations for change of address. There are a few potential reasons and factors that are likely resulting in these specific zip codes having so few observations. For example many of the zip codes in this tabel that are located in Manhattan are within the lower and midtown neighborhoods, which are areas characterized by numerous business districts and commercial areas. Thus these zip codes may be predominantly associated with business addresses, resulting in a lower frequency of residential address changes. Another observation from this table that could explain a potential reason for these zip codes having less than 60 observations for changes in address is that many of these zip codes are within residential areas where people are more likely to own property and as a result might not be moving in and out of the neighborhood as frequently. In the table there is a high representation of zip codes from Queens and Brooklyn which are boroughs with higher rates of home ownership, pointing to this being a potential factor at play. 
 
 
 ## Section 2 - Exploratory Data Analysis and Visualization
@@ -147,4 +147,5 @@ view(average_net_change_table)
 knitr::kable(average_net_change_table, caption = "This table shows the average net change in addresses by borough and year. The 'Average Net Change' values represent the average address changes for each combination of borough and year. Note that missing values are excluded from the calculations") 
 ```
 
-############ Commnet on trends in table ###############
+############ Commnet on trends in table ############### 
+

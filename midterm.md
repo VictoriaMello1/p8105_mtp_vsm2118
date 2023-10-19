@@ -441,7 +441,7 @@ knitr::kable(zip_count_60)
 |   11433 | Jamaica                       | Queens        | CALVERTON           |                 1 |
 |   11436 | Jamaica                       | Queens        | SOUTH OZONE PARK    |                 1 |
 
-As shown in the table above there are 58 zip codes with fewer than 60
+As shown in the table above there are 193 zip codes with fewer than 60
 observations for change of address. There are a few potential reasons
 and factors that are likely resulting in these specific zip codes having
 so few observations. For example many of the zip codes in this tabel
