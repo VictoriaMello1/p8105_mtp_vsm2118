@@ -52,6 +52,7 @@ Cleaning zipcode data and creating a borough variable
 # Create a "borough" variable in the ZIP code data
 zip_data <- zip_data %>%
   janitor::clean_names() %>% 
+  rename(zipcode = zip_code) %>% 
   mutate(
     borough = case_when(
       county_name %in% c("Kings", "Queens") ~ "Brooklyn",
@@ -61,4 +62,27 @@ zip_data <- zip_data %>%
     )
   )
 view(zip_data)
+```
+
+Merging the zipcode and coa datasets
+
+``` r
+# Merge the COA and ZIP code data based on ZIP code
+merged_data <- coa_data %>%
+  left_join(zip_data, by = "zipcode")
+```
+
+    ## Warning in left_join(., zip_data, by = "zipcode"): Detected an unexpected many-to-many relationship between `x` and `y`.
+    ## ℹ Row 88 of `x` matches multiple rows in `y`.
+    ## ℹ Row 79 of `y` matches multiple rows in `x`.
+    ## ℹ If a many-to-many relationship is expected, set `relationship =
+    ##   "many-to-many"` to silence this warning.
+
+``` r
+# Select only the necessary variables for later visualizations
+final_data <- merged_data %>%
+  select(zipcode, neighborhood, borough, year, month, net_change)
+
+# View the final dataset
+view(final_data)
 ```
