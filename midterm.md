@@ -458,3 +458,59 @@ neighborhood as frequently. In the table there is a high representation
 of zip codes from Queens and Brooklyn which are boroughs with higher
 rates of home ownership, pointing to this being a potential factor at
 play.
+
+## Section 2 - Exploratory Data Analysis and Visualization
+
+``` r
+# Group by borough and year, and calculate the average net_change
+average_net_change_table <- final_data %>%
+  group_by(borough, year) %>%
+  summarize(Average_Net_Change = mean(net_change, na.rm = TRUE)) %>% 
+  arrange(desc(Average_Net_Change))
+```
+
+    ## `summarise()` has grouped output by 'borough'. You can override using the
+    ## `.groups` argument.
+
+``` r
+average_net_change_table <- average_net_change_table %>%
+  rename(`Borough` = borough, `Year` = year, `Average Net Change` = Average_Net_Change)
+
+view(average_net_change_table)
+knitr::kable(average_net_change_table, caption = "This table shows the average net change in addresses by borough and year. The 'Average Net Change' values represent the average address changes for each combination of borough and year. Note that missing values are excluded from the calculations") 
+```
+
+| Borough       | Year | Average Net Change |
+|:--------------|-----:|-------------------:|
+| Staten Island | 2019 |          -9.125000 |
+| Staten Island | 2018 |          -9.846154 |
+| Staten Island | 2020 |         -10.544828 |
+| Staten Island | 2022 |         -16.298611 |
+| Staten Island | 2021 |         -22.548611 |
+| Queens        | 2018 |         -25.707097 |
+| Queens        | 2019 |         -28.085826 |
+| Queens        | 2022 |         -29.284953 |
+| Manhattan     | 2021 |         -39.470752 |
+| Manhattan     | 2018 |         -39.795890 |
+| Queens        | 2021 |         -43.296978 |
+| Manhattan     | 2022 |         -46.177253 |
+| Brooklyn      | 2018 |         -46.184265 |
+| Bronx         | 2018 |         -46.303333 |
+| Queens        | 2020 |         -46.553525 |
+| Bronx         | 2019 |         -48.016667 |
+| Brooklyn      | 2019 |         -51.683230 |
+| Manhattan     | 2019 |         -52.544554 |
+| Bronx         | 2022 |         -53.190000 |
+| Brooklyn      | 2022 |         -55.377593 |
+| Bronx         | 2021 |         -66.100000 |
+| Bronx         | 2020 |         -72.653333 |
+| Brooklyn      | 2021 |         -76.838115 |
+| Brooklyn      | 2020 |        -110.672065 |
+| Manhattan     | 2020 |        -127.700384 |
+
+This table shows the average net change in addresses by borough and
+year. The ‘Average Net Change’ values represent the average address
+changes for each combination of borough and year. Note that missing
+values are excluded from the calculations
+
+############ Commnet on trends in table
