@@ -14,3 +14,51 @@ data with an analysis of address change trends, uncovering extreme
 values, and plots that highlight neighborhood-level insights over the
 five-year period. The report concludes with an acknowledgment of any
 limitations of the dataset.
+
+## Section 1 – Data import, cleaning, and quality control
+
+``` r
+zip_data = read_csv("zip_codes.csv")
+```
+
+    ## Rows: 324 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (4): County Name, County Code, File Date, Neighborhood
+    ## dbl (3): State FIPS, County FIPS, ZipCode
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+sheet_names <- c("2018", "2019", "2020", "2021", "2022")
+coa_data <- map_dfr(sheet_names, ~ readxl::read_xlsx("USPS.xlsx", sheet = .x))
+
+view(coa_data)
+
+coa_data = coa_data %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    year = as.integer(str_sub(month, 1, 4)),
+    net_change = `total_perm_in` - `total_perm_out`
+  )
+  
+  view(coa_data)
+```
+
+Cleaning zipcode data and creating a borough variable
+
+``` r
+# Create a "borough" variable in the ZIP code data
+zip_data <- zip_data %>%
+  janitor::clean_names() %>% 
+  mutate(
+    borough = case_when(
+      county_name %in% c("Kings", "Queens") ~ "Brooklyn",
+      county_name == "Bronx" ~ "Bronx",
+      county_name == "New York" ~ "Manhattan",
+      county_name == "Richmond" ~ "Staten Island"
+    )
+  )
+view(zip_data)
+```
