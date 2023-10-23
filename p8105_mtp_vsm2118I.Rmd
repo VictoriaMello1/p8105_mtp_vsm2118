@@ -5,9 +5,14 @@ date: "October 23, 2023"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
+!!!!****CHECK WORD COUNT FOR STRICT 500 WORD LIMIT******!!!!!!
 
+```{r setup, include=FALSE}
 library(tidyverse)
+
+devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
+library(koRpus.lang.en)
+wordcountaddin::word_count()
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -27,12 +32,11 @@ scale_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-The raw data used in this analysis consists of Change of Address (COA) data from the US Postal Service for New York City between 2018 and 2022. The COA data includes information on the total number of permanent address changes going into and out of each ZIP code in New York City. The initial section of the report focuses on importing, cleaning, and ensuring data quality. This process results in a clean and structured dataset, ready for analysis. The dataset's characteristics, including observations, unique ZIP codes, and neighborhoods, are described. Data quality issues are also addressed. The subsequent section visualizes the data with an analysis of address change trends, uncovering extreme values, and plots that highlight neighborhood-level insights over the five-year period. The report concludes with an acknowledgment of any limitations of the dataset.
+(134 words) The raw data used in this analysis consists of Change of Address (COA) data from the US Postal Service for New York City between 2018 and 2022. The COA data includes information on the total number of permanent address changes going into and out of each ZIP code in New York City. The initial section of the report focuses on importing, cleaning, and ensuring data quality. This process results in a clean and structured dataset, ready for analysis. The dataset's characteristics, including observations, unique ZIP codes, and neighborhoods, are described. Data quality issues are also addressed. The subsequent section visualizes the data with an analysis of address change trends, uncovering extreme values, and plots that highlight neighborhood-level insights over the five-year period. The report concludes with an acknowledgment of any limitations of the dataset.
 
 
 ## Section 1 – Data import, cleaning, and quality control
 
-Read in the data:
 ```{r}
 zip_data = read_csv("zip_codes.csv")
 
@@ -47,12 +51,8 @@ coa_data = coa_data %>%
     year = as.integer(str_sub(month, 1, 4)),
     net_change = `total_perm_in` - `total_perm_out`
   )
-  
-view(coa_data)
 ```
 
-
-Cleaning zipcode data and creating a borough variable:
 ```{r}
 # Create a "borough" variable in the ZIP code data
 zip_data <- zip_data %>%
@@ -67,11 +67,10 @@ zip_data <- zip_data %>%
       county_name == "Richmond" ~ "Staten Island"
     )
   )
-view(zip_data)
+  view(zip_data)
+
 ```
 
-
-Merging the zipcode and coa data sets:
 ```{r}
 # Merge the COA and ZIP code data based on ZIP code
 merged_data <- coa_data %>%
@@ -79,15 +78,23 @@ merged_data <- coa_data %>%
 
 # Select only the necessary variables for later visualizations
 final_data <- merged_data %>%
+    mutate(
+    borough = case_when(
+      county_name == "Kings" ~ "Brooklyn",
+      county_name == "Queens" ~ "Queens",
+      county_name == "Bronx" ~ "Bronx",
+      county_name == "New York" ~ "Manhattan",
+      county_name == "Richmond" ~ "Staten Island"
+    ),
+    month = month(month, label = TRUE)
+  ) %>%
   select(zipcode, neighborhood, borough, year, month, net_change, city)
 
 view(final_data)
 ```
 
-The resulting tidy dataset final_data contains a total of `r nrow(final_data)` observations. It includes data from `r n_distinct(final_data$zipcode)` unique ZIP codes and data from `r n_distinct(final_data$neighborhood)` unique neighborhoods.
+(28 words) The resulting tidy dataset final_data contains a total of `r nrow(final_data)` observations. It includes data from `r n_distinct(final_data$zipcode)` unique ZIP codes and data from `r n_distinct(final_data$neighborhood)` unique neighborhoods.
 
-
-Comparing most common values of 'city' in Manhattan and Queens boroughs: 
 ```{r}
 # Filter the data for Manhattan and Queens
 manhattan_data <- final_data %>%
@@ -108,10 +115,8 @@ knitr::kable(queens_table, caption = "Queens most common city value")
 ```
 
 #### Data Quality Issues 
-In the Manhattan table, there appears to be variations in city names such as "NEW YORK," "NYC," and "WALL STREET." These variations may hinder accurate analysis and visualization by potentially duplicating or misrepresenting data. Additionally, the presence of "BRONX" and "BROOKLYN" entries within Manhattan suggests data entry errors or misclassification, which could lead to inaccuracies in borough-specific analyses. Based on these observations it seems that the "city" variable is not currently usable as it has both borough and neighborhood information. Instead, for analysis we can use the "neighborhood" variable for more micro-neighborhood level analysis as well as the "borough" variable that was created in the data cleaning step. Both of these levels of analysis into  
+(108 words) In the Manhattan table, there appears to be variations in city names such as "NEW YORK," "NYC," and "WALL STREET." These variations may hinder accurate analysis and visualization by potentially duplicating or misrepresenting data. Additionally, the presence of "BRONX" and "BROOKLYN" entries within Manhattan suggests data entry errors or misclassification, which could lead to inaccuracies in borough-specific analyses. Based on these observations it seems that the "city" variable is not currently usable as it has both borough and neighborhood information. Instead, for analysis we can use the "neighborhood" variable for more micro-neighborhood level analysis as well as the "borough" variable that was created in the data cleaning step.    
 
-
-Exploring zip code count:
 ```{r}
 # Count the observations for each ZIP code
 zip_code_counts <- final_data %>%
@@ -123,12 +128,10 @@ zip_count_60 <- zip_code_counts %>%
   filter(Observation_Count < 60) %>%
   arrange(desc(Observation_Count))
 
-
-view(zip_count_60)
 knitr::kable(zip_count_60)
 ```
 
-As shown in the table above there are `r nrow(zip_count_60)` zip codes with fewer than 60 observations for change of address. There are a few potential reasons and factors that are likely resulting in these specific zip codes having so few observations. For example many of the zip codes in this tabel that are located in Manhattan are within the lower and midtown neighborhoods, which are areas characterized by numerous business districts and commercial areas. Thus these zip codes may be predominantly associated with business addresses, resulting in a lower frequency of residential address changes. Another observation from this table that could explain a potential reason for these zip codes having less than 60 observations for changes in address is that many of these zip codes are within residential areas where people are more likely to own property and as a result might not be moving in and out of the neighborhood as frequently. In the table there is a high representation of zip codes from Queens and Brooklyn which are boroughs with higher rates of home ownership, pointing to this being a potential factor at play. 
+(204 words) As shown in the table above there are `r nrow(zip_count_60)` zip codes with fewer than 60 observations for change of address. There are a few potential reasons and factors that are likely resulting in these specific zip codes having so few observations. For example many of the zip codes in this tabel that are located in Manhattan are within the lower and midtown neighborhoods, which are areas characterized by numerous business districts and commercial areas. Thus these zip codes may be predominantly associated with business addresses, resulting in a lower frequency of residential address changes. Another observation from this table that could explain a potential reason for these zip codes having less than 60 observations for changes in address is that many of these zip codes are within residential areas where people are more likely to own property and as a result might not be moving in and out of the neighborhood as frequently. In the table there is a high representation of zip codes from Queens and Brooklyn which are boroughs with higher rates of home ownership, pointing to this being a potential factor at play. 
 
 
 ## Section 2 - Exploratory Data Analysis and Visualization
@@ -143,9 +146,126 @@ average_net_change_table <- final_data %>%
 average_net_change_table <- average_net_change_table %>%
   rename(`Borough` = borough, `Year` = year, `Average Net Change` = Average_Net_Change)
 
-view(average_net_change_table)
 knitr::kable(average_net_change_table, caption = "This table shows the average net change in addresses by borough and year. The 'Average Net Change' values represent the average address changes for each combination of borough and year. Note that missing values are excluded from the calculations") 
 ```
 
 ############ Commnet on trends in table ############### 
+
+
+```{r}
+lowest_net_change <- final_data %>%
+  arrange(net_change) %>%
+  head(5) %>%
+  select(zipcode, neighborhood, year, month, net_change)
+
+knitr::kable(lowest_net_change, caption = "Lowest Net Change in COA Requests")
+```
+
+```{r}
+highest_net_change_pre_2020 <- final_data %>%
+  filter(year < 2020) %>%
+  arrange(desc(net_change)) %>%
+  head(5) %>%
+  select(zipcode, neighborhood, year, month, net_change)
+
+knitr::kable(highest_net_change_pre_2020, caption = "Highest Net Change in COA Requests Pre-2020")
+```
+
+#############SHORT COMMENT ON THESE TABLES / TRENDS     
+
+Visualization/ Plot
+```{r}
+# Cleaning zipcodes incorrectly classified for borough
+final_data <- final_data %>%
+  mutate(borough = case_when(
+    zipcode == 10463 ~ "Queens",
+    zipcode == 11201 ~ "Brooklyn",
+    TRUE ~ borough
+  ))
+
+# Step 1: Filter the data by borough
+manhattan_data <- final_data %>% filter(borough == "Manhattan")
+brooklyn_data <- final_data %>% filter(borough == "Brooklyn")
+bronx_data <- final_data %>% filter(borough == "Bronx")
+queens_data <- final_data %>% filter(borough == "Queens")
+staten_island_data <- final_data %>% filter(borough == "Staten Island")
+
+
+# Step 2: Calculate the average net_change values across ZIP codes within neighborhoods for each month and year
+manhattan_avg_net_change <- manhattan_data %>%
+  group_by(year, month, neighborhood) %>%
+  summarize(avg_net_change = mean(net_change)) %>%
+  ungroup()
+
+brooklyn_avg_net_change <- brooklyn_data %>%
+  group_by(year, month, neighborhood) %>%
+  summarize(avg_net_change = mean(net_change)) %>%
+  ungroup()
+
+bronx_avg_net_change <- bronx_data %>%
+  group_by(year, month, neighborhood) %>%
+  summarize(avg_net_change = mean(net_change)) %>%
+  ungroup()
+
+queens_avg_net_change <- queens_data %>%
+  group_by(year, month, neighborhood) %>%
+  summarize(avg_net_change = mean(net_change)) %>%
+  ungroup()
+
+staten_island_avg_net_change <- staten_island_data %>%
+  group_by(year, month, neighborhood) %>%
+  summarize(avg_net_change = mean(net_change)) %>%
+  ungroup()
+
+
+# Step 3: Create separate plots for each borough
+
+manhattan_plot <- manhattan_avg_net_change %>%
+  ggplot(aes(x = month, y = avg_net_change, group = neighborhood, color = neighborhood)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year, nrow = 1) +  # Facet by year
+  labs(title = "Manhattan", x = "Month", y = "Average Net Change") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+brooklyn_plot <- brooklyn_avg_net_change %>%
+  ggplot(aes(x = month, y = avg_net_change, group = neighborhood, color = neighborhood)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year, nrow = 1) +  # Facet by year
+  labs(title = "Brooklyn", x = "Month", y = "Average Net Change") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+bronx_plot <- bronx_avg_net_change %>%
+  ggplot(aes(x = month, y = avg_net_change, group = neighborhood, color = neighborhood)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year, nrow = 1) +  # Facet by year
+  labs(title = "Bronx", x = "Month", y = "Average Net Change") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+queens_plot <- queens_avg_net_change %>%
+  ggplot(aes(x = month, y = avg_net_change, group = neighborhood, color = neighborhood)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year, nrow = 1) +  # Facet by year
+  labs(title = "Queens", x = "Month", y = "Average Net Change") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+staten_island_plot <- staten_island_avg_net_change %>%
+  ggplot(aes(x = month, y = avg_net_change, group = neighborhood, color = neighborhood)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year, nrow = 1) +  # Facet by year
+  labs(title = "Staten Island", x = "Month", y = "Average Net Change") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+# Step 4: Combine the plots using patchwork
+library(patchwork)
+all_boroughs_plot <- manhattan_plot / brooklyn_plot / bronx_plot / queens_plot / staten_island_plot
+
+
+ggsave("results/all_boroughs_plot.png", all_boroughs_plot, width = 16, height = 24, units = "in", bg = "white")
+
+```
 
