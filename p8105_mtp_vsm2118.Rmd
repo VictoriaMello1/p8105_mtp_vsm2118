@@ -23,14 +23,13 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
   ggplot2.continuious.color = "viridis",
   ggplot2.continuious.fill = "viridis"
-  
 )
 
 scale_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-This analysis uses 2018-2022 Change of Address (COA) data from the US Postal Service for New York City. The COA data includes information on the total number of permanent address changes going into and out of each zipcode in NYC. This report encompasses the data import, cleaning, and visualization process to examine the net address change trends by borough over the five years. Dataset limitations are also addressed.
+This analysis uses 2018-2022 Change of Address (COA) data from the US Postal Service for New York City. The COA data includes information on the total number of permanent address changes going into and out of each zipcode in NYC. This report encompasses the data import, cleaning, and visualization process to examine the net address change trends by borough over the five years. Dataset limitations for analyzing population changes are also addressed.
 
 ## Section 1 – Data import, cleaning, and quality control
 
@@ -138,9 +137,9 @@ zip_count_60 <- zip_code_counts %>%
   arrange(desc(Observation_Count))
 ```
 
-As shown in the table above there are `r nrow(zip_count_60)` zipcodes with fewer than 60 observations for change of address. There are various potential factors that are likely contributing to these specific zipcodes having less observations. For example, many of these zipcodes are within the midtown and lower Manhattan neighborhoods, which are characterized by large business/commercial areas. Zipcodes in these business-centric areas may be predominantly associated with commercial addresses and PO boxes, resulting in fewer residential address changes and contributing to missing neighborhood values. Additionally, many of these zipcodes are within residential areas of Queens and Brooklyn where property ownership is more likely, thus these zipcodes may have fewer COAs.
+There are `r nrow(zip_count_60)` zipcodes with fewer than 60 observations for change of address. There are various potential factors that are likely contributing to these specific zipcodes having less observations. For example, many of these zipcodes are within the midtown and lower Manhattan neighborhoods, which are characterized by large business/commercial areas. Zipcodes in these business-centric areas may be predominantly associated with commercial addresses and PO boxes, resulting in fewer residential address changes and contributing to missing neighborhood values. Additionally, many of these zipcodes are within residential neighborhoods of Queens and Brooklyn where property ownership is more likely, thus these zipcodes may have fewer COAs.
  
- 
+
 ## Section 2 - Exploratory Data Analysis and Visualization
 
 ```{r}
@@ -153,10 +152,10 @@ average_net_change_table <- final_data %>%
 average_net_change_table <- average_net_change_table %>%
   rename(`Borough` = borough, `Year` = year, `Average Net Change` = Average_Net_Change)
 
-knitr::kable(average_net_change_table, caption = "This table shows the average net change in addresses by borough and year. The 'Average Net Change' values represent the average address changes for each combination of borough and year. Note that missing values are excluded from the calculations") 
+knitr::kable(average_net_change_table, caption = "Table displaying average net address changes per borough and year, excluding missing values") 
 ```
 
-Notable trends include a sharp decline in net change values for all boroughs in 2020, except Staten Island, where this occurred in 2021. In 2020, Manhattan had the most significant decline, followed by Brooklyn, the Bronx, and Queens. However, Manhattan also displayed the most robust recovery in 2021. 
+Notable trends for this table include a sharp decline in net change values for all boroughs in 2020, except for Staten Island, where a decline occurred in 2021. In 2020, Manhattan had the most significant decline, followed by Brooklyn, the Bronx, and Queens. However, Manhattan also displayed the most robust recovery in 2021. 
 
 ```{r}
 lowest_net_change <- final_data %>%
@@ -177,6 +176,7 @@ highest_net_change_pre_2020 <- final_data %>%
 knitr::kable(highest_net_change_pre_2020, caption = "Highest Net Change in COA Requests Pre-2020")
 ```
 
+#### Visualization:
 ```{r}
 # Step 1: Filter the data by borough
 manhattan_data <- final_data %>% filter(borough == "Manhattan")
@@ -267,7 +267,7 @@ ggsave("results/all_boroughs_plot.png", all_boroughs_plot, width = 16, height = 
 ```
 ![Neighborhood-Level Average Net Change by Borough, 2018-2022](results/all_boroughs_plot.png)
 
-In 2020, all NYC boroughs except Staten Island experienced a decline in average net change in COAs from April to July, likely due to the onset of COVID-19. These boroughs did see a recovery from July 2020 onward and remained relatively stable. The Bronx had a milder dip and notable spikes in Central Bronx and High Bridge/Morrisania in 2021. Queens also had a less severe 2020 decline, except for the western neighborhoods. 
+In 2020, all NYC boroughs except Staten Island experienced a decline in average net change in COAs from April to July, likely due to the onset of COVID-19. Although the neighborhoods in these boroughs did see a recovery from July 2020 onward and remained relatively stable. The Bronx had a milder COVID-related dip and a significant spike in average net change in COAs for the Central Bronx and High Bridge/Morrisania neighborhoods during November, 2021. Queens also had a less severe COVID-related decline, with the exception of the western neighborhoods bordering Manhattan. 
 
 This dataset is limited in providing a comprehensive understanding of zipcode-level population changes because it does not account for variations in the number of individuals residing at each address which would be necessary for population change estimates. 
 
