@@ -29,7 +29,7 @@ scale_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-This analysis uses 2018-2022 Change of Address (COA) data from the US Postal Service for New York City. The COA data includes information on the total number of permanent address changes going into and out of each zipcode in NYC. This report encompasses the data import, cleaning, and visualization process to examine the net address change trends by borough over the five years. Dataset limitations for analyzing population changes are also addressed.
+This analysis uses 2018-2022 Change of Address (COA) data from the USPS for New York City. The COA data includes information on the total number of permanent address changes going into and out of each zipcode in NYC. This report encompasses the data import, cleaning, and visualization process to examine the net address change trends by borough over the five years. Dataset limitations for analyzing population changes are also addressed.
 
 ## Section 1 – Data import, cleaning, and quality control
 
@@ -122,16 +122,14 @@ knitr::kable(queens_table, caption = "Queens most common city value")
 ```
 
 #### Data Quality Issues 
-In the Manhattan table, variations in city names like "NEW YORK" and "NYC" can lead to inaccurate analysis and visualization, potentially duplicating or misrepresenting zipcode data. There are also duplicate city's and spelling errors among values in city variable. 
+In the Manhattan table, variations in city names like "NEW YORK" and "NYC" can lead to inaccurate analysis and visualization, potentially duplicating and/or misrepresenting zipcode data. There are also duplicate city's and spelling errors among values in city variable. The city variable has various data quality issues and should not be used in further analysis. 
 
 
 ```{r}
-# Count the observations for each ZIP code
 zip_code_counts <- final_data %>%
   group_by(zipcode, neighborhood, borough, city) %>%
   summarise(Observation_Count = n())
 
-# Filter for ZIP codes with less than 60 observations
 zip_count_60 <- zip_code_counts %>%
   filter(Observation_Count < 60) %>%
   arrange(desc(Observation_Count))
@@ -267,7 +265,7 @@ ggsave("results/all_boroughs_plot.png", all_boroughs_plot, width = 16, height = 
 ```
 ![Neighborhood-Level Average Net Change by Borough, 2018-2022](results/all_boroughs_plot.png)
 
-In 2020, all NYC boroughs except Staten Island experienced a decline in average net change in COAs from April to July, likely due to the onset of COVID-19. Although the neighborhoods in these boroughs did see a recovery from July 2020 onward and remained relatively stable. The Bronx had a milder COVID-related dip and a significant spike in average net change in COAs for the Central Bronx and High Bridge/Morrisania neighborhoods during November, 2021. Queens also had a less severe COVID-related decline, with the exception of the western neighborhoods bordering Manhattan. 
+In 2020, all NYC boroughs except Staten Island experienced a decline in average net change in COAs from April to July, likely due to the onset of COVID-19. Although the neighborhoods in these boroughs did slowly recover after July 2020 and remained relatively stable. The Bronx had a milder COVID-related dip and a significant spike in average net change in COAs for the Central Bronx and High Bridge/Morrisania neighborhoods during November, 2021. Queens also had a less severe COVID-related decline, with the exception of western neighborhoods bordering Manhattan. 
 
 This dataset is limited in providing a comprehensive understanding of zipcode-level population changes because it does not account for variations in the number of individuals residing at each address which would be necessary for population change estimates. 
 
